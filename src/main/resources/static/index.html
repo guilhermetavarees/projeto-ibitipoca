@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -162,6 +161,12 @@
         [-21.764227, -43.350427],
         10
     );
+    L.Icon.Default.mergeOptions({
+        imagePath: '/leaflet/images/',
+        iconUrl: 'marker-icon.png',
+        iconRetinaUrl: 'marker-icon.png',
+        shadowUrl: 'marker-shadow.png'
+    });
 
     const status = document.getElementById('status');
     const conexao = document.getElementById('conexao');
