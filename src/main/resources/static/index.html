@@ -161,6 +161,12 @@
         [-21.764227, -43.350427],
         10
     );
+    L.tileLayer('http://localhost:8081/styles/basic-preview/{z}/{x}/{y}.png', {
+        minZoom: 0,
+        maxZoom: 14,
+        attribution: '&copy; OpenStreetMap contributors &copy; OpenMapTiles'
+    }).addTo(mapa);
+
     L.Icon.Default.mergeOptions({
         imagePath: '/leaflet/images/',
         iconUrl: 'marker-icon.png',
