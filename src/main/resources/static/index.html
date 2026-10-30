@@ -3,267 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Projeto Ibitipoca - Navegação Offline</title>
+    <title>Ibitipoca · Navegação Offline</title>
 
     <link rel="stylesheet" href="./leaflet/leaflet.css">
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-
-        header {
-            padding: 20px;
-            background-color: #173b2b;
-            color: white;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0 0 8px;
-            font-size: 24px;
-        }
-
-        header p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        main {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .painel-status {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .cartao {
-            flex: 1;
-            min-width: 150px;
-            padding: 16px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .cartao h2 {
-            margin: 0 0 8px;
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .cartao p {
-            margin: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        #mapa {
-            width: 100%;
-            height: 500px;
-            background-color: #e5e7eb;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            z-index: 1;
-        }
-
-        #status {
-            margin-top: 14px;
-            padding: 14px;
-            background-color: white;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
-            overflow-wrap: anywhere;
-        }
-
-        .observacao {
-            margin-top: 12px;
-            color: #6b7280;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-            main {
-                padding: 12px;
-            }
-
-            header h1 {
-                font-size: 20px;
-            }
-
-            #mapa {
-                height: 400px;
-            }
-
-            .cartao {
-                min-width: 130px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="./css/tokens.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/sidebar.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/map.css">
 </head>
 
 <body>
-<header>
-    <h1>Projeto Ibitipoca</h1>
-    <p>Sistema de navegação offline</p>
-</header>
+<div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+        <header class="brand">
+            <span class="brand__mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <!-- sol -->
+                    <circle cx="23" cy="9.5" r="3.2" fill="#fde68a"/>
+                    <!-- montanha de trás -->
+                    <path d="M3 25 L12 11 L18 20 L15 25 Z"
+                          fill="rgba(255,255,255,0.55)"/>
+                    <!-- montanha da frente com pico nevado -->
+                    <path d="M11 25 L19 12 L29 25 Z" fill="#ffffff"/>
+                    <path d="M19 12 L22.4 16.5 L21 17.3 L19.7 16.3
+                             L18.3 17.5 L15.6 16.5 Z"
+                          fill="rgba(91,140,255,0.45)"/>
+                </svg>
+            </span>
+            <div>
+                <h1 class="brand__title">Ibitipoca</h1>
+                <p class="brand__subtitle">Navegação offline</p>
+            </div>
+            <button type="button" class="brand__toggle" id="btn-toggle"
+                    title="Expandir/recolher" aria-label="Expandir ou recolher">
+                ☰
+            </button>
+        </header>
 
-<main>
-    <section class="painel-status">
-        <div class="cartao">
-            <h2>Conexão</h2>
-            <p id="conexao">Verificando...</p>
+        <section class="stats">
+            <article class="stat">
+                <span class="stat__label">Conexão</span>
+                <span class="stat__value" id="conexao">
+                    <span class="dot" id="conexao-dot"></span>Verificando
+                </span>
+            </article>
+            <article class="stat">
+                <span class="stat__label">Distância</span>
+                <span class="stat__value" id="distancia">—</span>
+            </article>
+            <article class="stat">
+                <span class="stat__label">Tempo estimado</span>
+                <span class="stat__value" id="tempo">—</span>
+            </article>
+            <article class="stat">
+                <span class="stat__label">GPS</span>
+                <span class="stat__value" id="gps">Não iniciado</span>
+            </article>
+        </section>
+
+        <div class="status" id="status" role="status" aria-live="polite">
+            Inicializando o mapa…
         </div>
 
-        <div class="cartao">
-            <h2>Distância da rota</h2>
-            <p id="distancia">Calculando...</p>
+        <div class="actions">
+            <button type="button" class="btn" id="btn-gps">
+                <span aria-hidden="true">📍</span> Localização
+            </button>
+            <button type="button" class="btn" id="btn-sim">
+                <span aria-hidden="true">▶</span> Simular
+            </button>
+            <button type="button" class="btn btn--ghost" id="btn-tema"
+                    title="Alternar tema" aria-label="Alternar tema">
+                🌓
+            </button>
         </div>
 
-        <div class="cartao">
-            <h2>GPS</h2>
-            <p id="gps">Não iniciado</p>
-        </div>
-    </section>
+        <section class="steps" id="steps-wrap" hidden>
+            <h2 class="steps__title">Instruções da rota</h2>
+            <ol class="steps__list" id="steps-list"></ol>
+        </section>
 
-    <section>
-        <div id="mapa"></div>
-        <div id="status">Inicializando o mapa...</div>
-
-        <p class="observacao">
-            A linha azul representa o trajeto armazenado no arquivo local.
-            O mapa de fundo offline e o acompanhamento da posição GPS
-            serão implementados nas próximas etapas.
+        <p class="note">
+            A linha destaca o trajeto armazenado localmente. Clique em uma
+            instrução para centralizar no mapa. GPS funciona sem internet.
         </p>
-    </section>
-</main>
+    </aside>
+
+    <div class="resizer" id="resizer" role="separator"
+         aria-orientation="vertical" tabindex="0"
+         aria-label="Redimensionar painel lateral"></div>
+
+    <main class="map-wrap">
+        <div id="mapa"></div>
+    </main>
+</div>
 
 <script src="./leaflet/leaflet.js"></script>
-
-<script>
-    const mapa = L.map('mapa').setView(
-        [-21.764227, -43.350427],
-        10
-    );
-    L.tileLayer('http://localhost:8081/styles/basic-preview/{z}/{x}/{y}.png', {
-        minZoom: 0,
-        maxZoom: 14,
-        attribution: '&copy; OpenStreetMap contributors &copy; OpenMapTiles'
-    }).addTo(mapa);
-
-    L.Icon.Default.mergeOptions({
-        imagePath: '/leaflet/images/',
-        iconUrl: 'marker-icon.png',
-        iconRetinaUrl: 'marker-icon.png',
-        shadowUrl: 'marker-shadow.png'
-    });
-
-    const status = document.getElementById('status');
-    const conexao = document.getElementById('conexao');
-    const distancia = document.getElementById('distancia');
-
-    function atualizarConexao() {
-        conexao.textContent = navigator.onLine
-            ? 'Com conexão'
-            : 'Sem conexão';
-    }
-
-    atualizarConexao();
-
-    window.addEventListener('online', atualizarConexao);
-    window.addEventListener('offline', atualizarConexao);
-
-    fetch('./data/rota_navegacao_offline.json')
-        .then(resposta => {
-            if (!resposta.ok) {
-                throw new Error(
-                    'Não foi possível carregar o arquivo da rota.'
-                );
-            }
-
-            return resposta.json();
-        })
-        .then(dados => {
-            if (dados.code !== 'Ok' || !dados.routes?.length) {
-                throw new Error(
-                    'O arquivo não contém uma rota válida.'
-                );
-            }
-
-            const rota = dados.routes[0];
-
-            if (!rota.geometry?.coordinates?.length) {
-                throw new Error(
-                    'A rota não possui coordenadas para desenhar.'
-                );
-            }
-
-            // O OSRM fornece [longitude, latitude].
-            // O Leaflet utiliza [latitude, longitude].
-            const coordenadas = rota.geometry.coordinates.map(
-                ([longitude, latitude]) => [latitude, longitude]
-            );
-
-            const linhaRota = L.polyline(coordenadas, {
-                color: '#1769ff',
-                weight: 5,
-                opacity: 0.9
-            }).addTo(mapa);
-
-            L.marker(coordenadas[0])
-                .addTo(mapa)
-                .bindPopup('Início da rota');
-
-            L.marker(coordenadas[coordenadas.length - 1])
-                .addTo(mapa)
-                .bindPopup('Fim da rota');
-
-            mapa.fitBounds(linhaRota.getBounds(), {
-                padding: [20, 20]
-            });
-
-            distancia.textContent =
-                (rota.distance / 1000)
-                    .toFixed(2)
-                    .replace('.', ',') + ' km';
-
-            const duracaoMinutos = Math.round(rota.duration / 60);
-            const horas = Math.floor(duracaoMinutos / 60);
-            const minutos = duracaoMinutos % 60;
-
-            status.textContent =
-                'Rota carregada com sucesso. Distância: ' +
-                distancia.textContent +
-                '. Tempo estimado pelo OSRM: ' +
-                horas + ' h ' + minutos + ' min.';
-
-            console.log('Rota carregada:', rota);
-            console.log('Quantidade de coordenadas:', coordenadas.length);
-        })
-        .catch(erro => {
-            console.error('Erro ao carregar a rota:', erro);
-
-            status.textContent =
-                'Erro ao carregar a rota: ' + erro.message +
-                ' Se o HTML foi aberto diretamente como arquivo, ' +
-                'será necessário executar a aplicação em localhost.';
-        });
-</script>
+<script src="./js/config.js"></script>
+<script src="./js/util.js"></script>
+<script src="./js/map.js"></script>
+<script src="./js/route.js"></script>
+<script src="./js/gps.js"></script>
+<script src="./js/simulation.js"></script>
+<script src="./js/theme.js"></script>
+<script src="./js/sidebar.js"></script>
+<script src="./js/app.js"></script>
 </body>
 </html>
